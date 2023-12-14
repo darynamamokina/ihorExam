@@ -1,24 +1,29 @@
 class Task:
-    def __init__(self, name, priority=0):
+    def init(self, name, priority=0):
         self.name = name
         self.priority = priority
 
-    def __str__(self):
+    def str(self):
         return f"{self.name} - Priority: {self.priority}"
 
 class PriorityDecorator:
-    def __init__(self, priority):
-        try:
-            self.priority = int(priority)
-        except ValueError:
-            raise ValueError("Priority must be an integer.")
+    def init(self, default_priority=0):
+        self.default_priority = default_priority
 
-    def __call__(self, func):
+    def call(self, func):
         def wrapper(*args, **kwargs):
-            task = func(*args, **kwargs)
-            task.priority = self.priority
-            return task
+            result = func(*args, **kwargs)
+
+            if func.name == "add_task":
+                priority = kwargs.get('priority', self.default_priority)
+                args[0][-1].priority = priority
+
+            return result
         return wrapper
+
+@PriorityDecorator(default_priority=1)
+def add_task(tasks, task):
+    tasks.append(task)
 
 def display_tasks(tasks):
     sorted_tasks = sorted(tasks, key=lambda x: x.priority)
@@ -31,8 +36,6 @@ def execute_tasks(tasks):
         print(f"Executing task: {task.name}")
     tasks.clear()
 
-def add_task(tasks, task):
-    tasks.append(task)
 
 def change_task_priority(tasks, task_name, new_priority):
     task_found = False
@@ -45,7 +48,7 @@ def change_task_priority(tasks, task_name, new_priority):
     if not task_found:
         print(f"Error: Task with name '{task_name}' not found.")
 
-if __name__ == "__main__":
+if name == "main":
     tasks = []
 
     while True:
@@ -68,7 +71,7 @@ if __name__ == "__main__":
                 continue
 
             task = Task(name, priority)
-            add_task(tasks, task)
+            add_task(tasks, task=Task(name, priority=priority))
             print("Task added successfully!")
 
         elif choice == "2":
